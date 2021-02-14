@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MyTV</title>
+
+	<meta name="viewport" content="width=3840, height=2160" />
+   	<meta charset="UTF-8">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com"/>
+	<!--<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet"/>-->
+
+    <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+	<div id="player" class="fixedTopLeft">
+		<object type="application/avplayer"></object>
+	</div>
+
+	<div id="page_loader" class="fixedTopLeft">
+		<img src="assets/img/loader.gif" class="loader"/>
+	</div>
+
+	<div id="overlay">
+		<p id="currentChannel">Bienvenue</p>
+		<div id="channels" class="channels">
+			<img src="https://tizen.000.ovh/logos/discovery-channel-white.png" data-name="Discovery Channel" data-url="http://tv2sat.co:8000/50073032738292/59688017304443/75723"/>
+			<img src="https://tizen.000.ovh/logos/discovery-science.png"/>
+			<img src="https://tizen.000.ovh/logos/altice-studio.png">
+			<img src="https://tizen.000.ovh/logos/disney-plus.png" class="active cursor">
+		</div>
+	</div>
+
+	<div class="log">
+        <p id="log3">LIGNE 1</p>
+        <p id="log2">LIGNE 2</p>
+        <p id="log1">LIGNE 3</p>
+    </div>
+
+	<script>
+		(() => {
+			var cssMain = document.createElement('link');
+			cssMain.href = 'https://fonts.googleapis.com/css2?family=Poppins&display=swap';
+			cssMain.rel = 'stylesheet';
+			document.getElementsByTagName('head')[0].appendChild(cssMain);
+		})();
+	</script>
+	<script type="text/javascript" src="$WEBAPIS/webapis/webapis.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

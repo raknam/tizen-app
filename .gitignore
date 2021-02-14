@@ -1,7 +1,6 @@
-/css
-/icon.png
-/index.html
-/js
-/section1.html
-/section2.html
-/workspace.code-workspace
+*.wgt
+workspace.code-workspace
+.settings
+.sign
+.project
+.tproject

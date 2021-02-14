@@ -1,10 +1,14 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://raknam.fr/MyTV" version="2.0.0" viewmodes="maximized">
-  <tizen:application id="Raknam0000.MyTVv2" package="Raknam0000" required_version="2.3"/>
-  <name>MyTV</name>
-  <content src="index.html"/>
-  <feature name="http://tizen.org/feature/screen.size.all"/>
-  <icon src="icon.png"/>
-  <tizen:profile name="tv"/>
-  <tizen:setting screen-orientation="landscape" context-menu="enable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://raknam.fr/MyTV" version="0.0.1" viewmodes="maximized">
+    <access origin="*" subdomains="true"/>
+    <tizen:application id="Raknam0000.MyTVv2" package="Raknam0000" required_version="4.0"/>
+    <author href="https://raknam.fr" email="me@raknam.fr">Raknam</author>
+    <content src="index.html"/>
+    <feature name="http://tizen.org/feature/screen.size.normal.1080.1920"/>
+    <icon src="assets/img/icon.png"/>
+    <name>MyTV</name>
+    <tizen:privilege name="http://tizen.org/feature/network.internet"/>
+    <tizen:privilege name='http://tizen.org/privilege/tv.inputdevice'/>
+    <tizen:profile name="tv"/>
+    <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"/>
 </widget>

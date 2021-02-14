@@ -1,0 +1,91 @@
+body {
+	margin: 0;
+	background-color: #232323;
+	font-family: 'Poppins', sans-serif;
+}
+
+.fixedTopLeft {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#player {
+	height: 2160px;
+	width: 3840px;
+	/*background-color: red;*/
+}
+
+#player object {
+	width: 3840px;
+	height: 2160px;
+}
+
+#page_loader {
+	height: 2160px;
+	width: 3840px;
+}
+
+#page_loader img {
+	left: 1843px;
+    top: 1003px;
+    position: relative;
+}
+
+.log {
+	position: absolute;
+	left: 40px;
+	bottom: 530px;
+	color: white;
+	font-size: 30pt;
+}
+
+.log p {
+	margin: 0;
+}
+
+#overlay {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	background-color: rgba(255, 255, 255, 0.25);
+	height: 510px;
+	width: 3840px;
+}
+
+#currentChannel {
+	color: white;
+	font-size: 60px;
+	margin: 0;
+    margin-top: 30px;
+    margin-left: 40px;
+    text-transform: uppercase;
+}
+
+.channels {
+	padding: 20px;
+    padding-top: 0px;
+}
+
+.channels img {
+	border: white 10px solid;
+	border-radius: 5px;
+	margin: 20px;
+	padding: 20px;
+	height: 250px;
+	width: 250px;
+	background-color: #454545;
+	filter: grayscale(1);
+}
+
+.channels img.active {
+	border-color: green;
+	background-color: white;
+	filter: grayscale(0);
+}
+
+.channels img.cursor {
+	border-color: #0098ff;
+	filter: grayscale(0);
+    background-color: white;
+}
