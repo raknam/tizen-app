@@ -89,6 +89,7 @@ var player = {
 		if (Chrome_DEBUG) return
 
 		if (player.playing) {
+			clearTimeout(player.overlayTimeout)
 			webapis.avplay.stop()
 			loader.show()
 		}
@@ -119,7 +120,7 @@ var player = {
 			loader.hide()
 			clearLogs();
 			webapis.avplay.play();
-			setTimeout(overlay.hide, 3000);
+			player.overlayTimeout = setTimeout(overlay.hide, 3000);
 		} else {
 			if (player.prepareCount >= 10) {
 				player.run(player.currentUrl)
@@ -128,6 +129,7 @@ var player = {
 			}
 		}
 	},
+	overlayTimeout: null,
 	init: () => {
 		if (Chrome_DEBUG) return
 		webapis.avplay.setListener(player.listeners);
@@ -206,6 +208,7 @@ var RemoteKeys = {
 var app = {
 	loadChannels: (callback) => {
 		app.channels = []
+		overlay.channelsDiv.innerHTML = ""
 		fetch('https://tizen.000.ovh/channels.php').then(res => res.json()).then((out) => {
 			out.channels.forEach(channel => app.addChannel(channel))
 			callback()
@@ -223,9 +226,14 @@ var app = {
 class Channel {
 	constructor(json) {
 		this.url = json.url
-		this.image_url = json.image_url
 		this.name = json.name
+		this.image_url = json.image_url
+		this.image_url_over = json.image_url_over
 		this.generateDomElement()
+	}
+
+	hasLogoOver() {
+		return this.image_url_over != null
 	}
 
 	generateDomElement() {
@@ -233,18 +241,22 @@ class Channel {
 		this.domElement.src = this.image_url
 		this.domElement.dataset.name = this.name
 		this.domElement.dataset.url = this.url
+		this.domElement.dataset.logo = this.logo
+		this.domElement.dataset.logo_over = this.logo_over
 	}
 
 	setActive(active) {
 		this.domElement.classList.toggle('active', active)
-		if (this.name.toLowerCase() == "discovery channel")
-			this.domElement.src = active ? "https://tizen.000.ovh/logos/discovery-channel.png" : "https://tizen.000.ovh/logos/discovery-channel-white.png"
+		if (this.hasLogoOver()) {
+			this.domElement.src = active ? this.image_url_over : this.image_url
+		}
 	}
 
 	setCursor(active) {
 		this.domElement.classList.toggle('cursor', active)
-		if (this.name.toLowerCase() == "discovery channel")
-			this.domElement.src = active ? "https://tizen.000.ovh/logos/discovery-channel.png" : "https://tizen.000.ovh/logos/discovery-channel-white.png"
+		if (this.hasLogoOver()) {
+			this.domElement.src = active ? this.image_url_over : this.image_url
+		}
 	}
 }
 
