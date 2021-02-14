@@ -28,7 +28,7 @@ var overlay = {
 	},
 	show: function() {
 		overlay.div.style.display = 'block'
-		overlay.setCursor(app.channels[0])
+		overlay.setCursor(overlay.active)
 	},
 	shown: () => overlay.div.style.display == 'block',
 	hidden: () => !overlay.shown(),
@@ -37,8 +37,9 @@ var overlay = {
 		app.channels.forEach((channel) => {
 			overlay.channelsDiv.appendChild(channel.domElement)
 		})
-		overlay.setCursor(app.channels[0])
+		
 		overlay.setActive(app.channels[0])
+		overlay.show()
 	},
 
 	cursor: null,
@@ -179,11 +180,17 @@ var remoteHandling = {
 				overlay.moveCursorLeft()
 				break;
 			}
+			case RemoteKeys.Back: {
+				if (overlay.shown()) {
+					overlay.hide()
+				}
+				break;
+			}
 			case RemoteKeys.Up: case RemoteKeys.Down:
 				event.stopImmediatePropagation()
 				break;
 			case RemoteKeys.ChannelList:
-				app.loadChannels(() => { overlay.init() });
+				app.loadChannels();
 				break;
 		}
 	},
@@ -205,12 +212,12 @@ var RemoteKeys = {
 
 //App
 var app = {
-	loadChannels: (callback) => {
+	loadChannels: () => {
 		app.channels = []
 		overlay.channelsDiv.innerHTML = ""
 		fetch('https://tizen.000.ovh/channels.php').then(res => res.json()).then((out) => {
 			out.channels.forEach(channel => app.addChannel(channel))
-			callback()
+			overlay.init()
 		}).catch(err => console.error(err));
 	},
 	channels: [],
@@ -269,5 +276,5 @@ window.onload = () => {
 	clearLogs();
 	remoteHandling.init();
 	player.init();
-	app.loadChannels(() => { overlay.init() });
+	app.loadChannels();
 };
