@@ -1,3 +1,6 @@
+var Chrome_DEBUG = false
+
+
 //Loader
 var loader = {
 	div: document.getElementById('page_loader'),
@@ -7,94 +10,70 @@ var loader = {
 
 
 //LOGS
-var logs = {
-	p: [
-		document.getElementById('log1'),
-		document.getElementById('log2'),
-		document.getElementById('log3')
-	],
-	clear: function() { 
-		this.p[0].innerHTML = ""
-		this.p[1].innerHTML = ""
-		this.p[2].innerHTML = "" 
-	},
-	appendLog: function(log) { 
-		this.p[2].innerHTML = this.p[1].innerHTML
-		this.p[1].innerHTML = this.p[0].innerHTML
-		this.p[0].innerHTML = log 
-	},
-	replaceLastLog: function(log) {
-		this.p[0].innerHTML = log 
-	},
-}
-var log = (log) => logs.appendLog(log)
+var logDiv1 = document.getElementById('log1')
+var logDiv2 = document.getElementById('log2')
+var log = (log) => logDiv2.innerHTML = log
+var sublog = (log) => logDiv1.innerHTML = log
+var clearLogs = () => { logDiv1.innerHTML = ""; logDiv2.innerHTML = "" }
 
 
 //OVERLAY
 var overlay = {
 	div: document.getElementById('overlay'),
+	channelNameP: document.getElementById('currentChannel'),
+	channelsDiv: document.getElementById('channels'),
+
 	hide: function() { 
 		overlay.div.style.display = 'none'
 	},
-	show: function() { 
-		if (overlay.hidden)
-			overlay.displayCursor()
+	show: function() {
 		overlay.div.style.display = 'block'
+		overlay.setCursor(app.channels[0])
 	},
-	visible: () => overlay.div.style.display == 'block',
-	hidden: () => !overlay.visible(),
+	shown: () => overlay.div.style.display == 'block',
+	hidden: () => !overlay.shown(),
 	
-	cursorPosition: 0,
-	resetCursor: () => {
-		Array.from(overlay.channelsDiv.children).forEach(img => img.classList.remove('cursor'))
-	},
-	displayCursor: () => {
-		overlay.cursorPosition = overlay.currentChannel == null ? 0 : overlay.currentChannel.position
-		overlay.channelsDiv.children[overlay.cursorPosition].classList.add('cursor')
-	},
-	moveCursorRight: () => {
-		overlay.channelsDiv.children[overlay.cursorPosition].classList.remove('cursor')
-		if (overlay.cursorPosition < overlay.channelsDiv.children.length - 1)
-			overlay.cursorPosition++
-		overlay.channelsDiv.children[overlay.cursorPosition].classList.add('cursor')
-	},
-	moveCursorLeft: () => {
-		overlay.channelsDiv.children[overlay.cursorPosition].classList.remove('cursor')
-		if (overlay.cursorPosition > 0)
-			overlay.cursorPosition--
-		overlay.channelsDiv.children[overlay.cursorPosition].classList.add('cursor')
+	init: () => {
+		app.channels.forEach((channel) => {
+			overlay.channelsDiv.appendChild(channel.domElement)
+		})
+		overlay.setCursor(app.channels[0])
+		overlay.setActive(app.channels[0])
 	},
 
-	channelNameP: document.getElementById('currentChannel'),
-	setChannelName: function(name) { overlay.channelNameP.innerHTML = name },
-
-	channelsDiv: document.getElementById('channels'),
-	clearChannels: function() { overlay.channelsDiv.innerHTML="" },
-	addChannel: function(channel) {
-		let img = document.createElement('img')
-		img.src = channel.image_url
-		img.dataset.name = channel.name
-		img.dataset.url = channel.url
-		img.getObject = function() { return this.dataset }
-		overlay.channelsDiv.appendChild(img)
-		img.dataset.position = Array.from(overlay.channelsDiv.children).indexOf(img)
+	cursor: null,
+	active: null,
+	setCursor: (channel) => {
+		app.channels.forEach((c) => c.setCursor(false))
+		channel.setCursor(true)
+		overlay.cursor = channel
+	},
+	setActive: (channel) => {
+		app.channels.forEach((c) => c.setActive(false))
+		channel.setActive(true)
+		overlay.active = channel
+		overlay.channelNameP.innerHTML = channel.name
+		player.run(channel.url)
 	},
 
-	currentChannel: null,
-	getSelectedChannel: function() {
-		return overlay.currentChannel
-	},
-	setCurrentChannel: function(position) {
-		if (overlay.currentChannel != null) {
-			overlay.channelsDiv.children[overlay.currentChannel.position].classList.remove('active')
+	moveCursorRight: () => overlay.moveCursor(1),
+	moveCursorLeft: () => overlay.moveCursor(-1),
+	moveCursor: (move) => {
+		let current = overlay.cursor.position
+		if (current + move < 0 || current + move > app.channels.length - 1) {
+			console.log("Cannot apply move " + move)
+			return
 		}
-
-		let img = overlay.channelsDiv.children[position]
-		img.classList.add("active")
-		overlay.currentChannel = img.getObject()
-		overlay.setChannelName(overlay.currentChannel.name)
-		player.run(overlay.currentChannel.url)
+		overlay.cursor.setCursor(false)
+		overlay.cursor = app.channels[current + move]
+		overlay.cursor.setCursor(true)
 	},
+
+	enter: () => {
+		overlay.setActive(overlay.cursor)
+	},
+
+	timeout: null,
 }
 
 
@@ -107,6 +86,7 @@ var player = {
 	currentUrl: "",
 	run: (url) => {
 		log("Starting Player > " + url)
+		if (Chrome_DEBUG) return
 
 		if (player.playing) {
 			webapis.avplay.stop()
@@ -128,17 +108,20 @@ var player = {
 	preparePlayer: () => {
 		let prepared = false
 		player.prepareCount++
+		sublog(`Retry ${player.prepareCount}`)
+		
 		try {
 			webapis.avplay.prepare();
 			prepared = true
 		} catch (e) { }
+
 		if (prepared) {
 			loader.hide()
-			logs.clear()
+			clearLogs();
 			webapis.avplay.play();
-			setTimeout(overlay.hide, 2000);
+			setTimeout(overlay.hide, 3000);
 		} else {
-			if (player.prepareCount > 10) {
+			if (player.prepareCount >= 10) {
 				player.run(player.currentUrl)
 			} else {
 				setTimeout(player.preparePlayer, 1000)
@@ -146,6 +129,7 @@ var player = {
 		}
 	},
 	init: () => {
+		if (Chrome_DEBUG) return
 		webapis.avplay.setListener(player.listeners);
 	},
 	listeners: {
@@ -162,32 +146,44 @@ var player = {
 
 //REMOTE
 var remoteHandling = {
-	api: tizen.tvinputdevice,
+	api: Chrome_DEBUG ? null : tizen.tvinputdevice,
 	init: function() {
 		//console.log(this.api.getSupportedKeys())
-		tizen.tvinputdevice.registerKeyBatch([])
 		document.body.addEventListener('keydown', this.onKeyPressed)
+		if (Chrome_DEBUG) return
+		tizen.tvinputdevice.registerKeyBatch(['ChannelList'])
 	},
 	onKeyPressed: function(event) {
 		console.log("KeyPressed", event.keyCode)
 		switch(event.keyCode) {
 			case RemoteKeys.OK: {
 				if (overlay.hidden()) {
-					overlay.setCurrentChannel(0)
 					overlay.show()
 				} else {
-					overlay.setCurrentChannel(overlay.cursorPosition)
+					overlay.enter()
 				}
                 break
             }
 			case RemoteKeys.Right: {
+				if (overlay.hidden()) {
+					overlay.show()
+				}
 				overlay.moveCursorRight()
 				break;
 			}
 			case RemoteKeys.Left: {
+				if (overlay.hidden()) {
+					overlay.show()
+				}
 				overlay.moveCursorLeft()
 				break;
 			}
+			case RemoteKeys.Up: case RemoteKeys.Down:
+				event.stopImmediatePropagation()
+				break;
+			case RemoteKeys.ChannelList:
+				app.loadChannels(() => { overlay.init() });
+				break;
 		}
 	},
 }
@@ -208,22 +204,59 @@ var RemoteKeys = {
 
 //App
 var app = {
-	loadChannels: function (callback) {
+	loadChannels: (callback) => {
+		app.channels = []
 		fetch('https://tizen.000.ovh/channels.php').then(res => res.json()).then((out) => {
-			out.channels.forEach(channel => overlay.addChannel(channel))
+			out.channels.forEach(channel => app.addChannel(channel))
 			callback()
 		}).catch(err => console.error(err));
+	},
+	channels: [],
+	addChannel: (channelJson) => {
+		let channel = new Channel(channelJson)
+		channel.position = app.channels.length
+		app.channels.push(channel)
+	},
+}
+
+
+class Channel {
+	constructor(json) {
+		this.url = json.url
+		this.image_url = json.image_url
+		this.name = json.name
+		this.generateDomElement()
+	}
+
+	generateDomElement() {
+		this.domElement = document.createElement('img')
+		this.domElement.src = this.image_url
+		this.domElement.dataset.name = this.name
+		this.domElement.dataset.url = this.url
+	}
+
+	setActive(active) {
+		this.domElement.classList.toggle('active', active)
+		if (this.name.toLowerCase() == "discovery channel")
+			this.domElement.src = active ? "https://tizen.000.ovh/logos/discovery-channel.png" : "https://tizen.000.ovh/logos/discovery-channel-white.png"
+	}
+
+	setCursor(active) {
+		this.domElement.classList.toggle('cursor', active)
+		if (this.name.toLowerCase() == "discovery channel")
+			this.domElement.src = active ? "https://tizen.000.ovh/logos/discovery-channel.png" : "https://tizen.000.ovh/logos/discovery-channel-white.png"
 	}
 }
 
 
 //Onload
-window.onload = function() {
-	logs.clear();
-	overlay.clearChannels();
+window.onload = () => {
+	if (Chrome_DEBUG) {
+		document.getElementById('player').getElementsByTagName('object')[0].style.display = 'none'
+	}
+
+	clearLogs();
 	remoteHandling.init();
 	player.init();
-	app.loadChannels(function(){
-		//overlay.setCurrentChannel(0)
-	});
+	app.loadChannels(() => { overlay.init() });
 };
