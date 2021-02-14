@@ -82,7 +82,6 @@ var player = {
 	div: document.getElementById('player'),
 	playing: false,
 	prepareCount: 0,
-	firstPlay: true,
 	currentUrl: "",
 	run: (url) => {
 		log("Starting Player > " + url)
@@ -90,7 +89,9 @@ var player = {
 
 		if (player.playing) {
 			clearTimeout(player.overlayTimeout)
+			clearTimeout(player.retryTimeout)
 			webapis.avplay.stop()
+			webapis.avplay.close()
 			loader.show()
 		}
 
@@ -100,11 +101,8 @@ var player = {
 		
 		webapis.avplay.open(url)
 		
-		if (player.firstPlay) {
-			player.firstPlay = false
-			webapis.avplay.setDisplayRect(0,0,1920,1080);
-		}
-		setTimeout(player.preparePlayer, 1000)
+		webapis.avplay.setDisplayRect(0,0,1920,1080);
+		setTimeout(player.preparePlayer, 2000)
 	},
 	preparePlayer: () => {
 		let prepared = false
@@ -120,16 +118,17 @@ var player = {
 			loader.hide()
 			clearLogs();
 			webapis.avplay.play();
-			player.overlayTimeout = setTimeout(overlay.hide, 3000);
+			player.overlayTimeout = setTimeout(overlay.hide, 5000);
 		} else {
 			if (player.prepareCount >= 10) {
 				player.run(player.currentUrl)
 			} else {
-				setTimeout(player.preparePlayer, 1000)
+				player.retryTimeout = setTimeout(player.preparePlayer, 2000)
 			}
 		}
 	},
 	overlayTimeout: null,
+	retryTimeout: null,
 	init: () => {
 		if (Chrome_DEBUG) return
 		webapis.avplay.setListener(player.listeners);
@@ -248,14 +247,14 @@ class Channel {
 	setActive(active) {
 		this.domElement.classList.toggle('active', active)
 		if (this.hasLogoOver()) {
-			this.domElement.src = active ? this.image_url_over : this.image_url
+			this.domElement.src = active || this.domElement.classList.contains('cursor') ? this.image_url_over : this.image_url
 		}
 	}
 
 	setCursor(active) {
 		this.domElement.classList.toggle('cursor', active)
 		if (this.hasLogoOver()) {
-			this.domElement.src = active ? this.image_url_over : this.image_url
+			this.domElement.src = active || this.domElement.classList.contains('active') ? this.image_url_over : this.image_url
 		}
 	}
 }
