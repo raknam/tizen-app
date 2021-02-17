@@ -119,6 +119,7 @@ var player = {
 			loader.hide()
 			clearLogs();
 			webapis.avplay.play();
+			clearTimeout(player.retryTimeout);
 			player.overlayTimeout = setTimeout(overlay.hide, 5000);
 		} else {
 			if (player.prepareCount >= 10) {
