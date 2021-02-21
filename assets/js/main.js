@@ -213,13 +213,22 @@ var RemoteKeys = {
 
 //App
 var app = {
+	init: () => {
+		clearLogs();
+		remoteHandling.init();
+		player.init();
+		app.loadChannels();
+	},
 	loadChannels: () => {
 		app.channels = []
 		overlay.channelsDiv.innerHTML = ""
 		fetch('https://tizen.000.ovh/channels.php').then(res => res.json()).then((out) => {
 			out.channels.forEach(channel => app.addChannel(channel))
 			overlay.init()
-		}).catch(err => console.error(err));
+		}).catch(err => {
+			console.error(err)
+			log('loadChannels::error ' + err)
+		});
 	},
 	channels: [],
 	addChannel: (channelJson) => {
@@ -274,8 +283,5 @@ window.onload = () => {
 		document.getElementById('player').getElementsByTagName('object')[0].style.display = 'none'
 	}
 
-	clearLogs();
-	remoteHandling.init();
-	player.init();
-	app.loadChannels();
+	app.init();
 };
