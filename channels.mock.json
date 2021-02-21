@@ -1,0 +1,19 @@
+
+{
+    "channels": [
+        {
+            "image_url": "https://tizen.000.ovh/logos/nhkworld.png",
+            "image_url_over": null,
+            "name": "NHK World",
+            "url": "http://192.168.50.253:52424/freeboxtv/mafreebox.freebox.fr/fbxtv_pub/stream?namespace=1&service=812&flavour=hd",
+            "position": 1
+        },
+        {
+            "image_url": "https://tizen.000.ovh/logos/bet.png",
+            "image_url_over": null,
+            "name": "BET",
+            "url": "http://192.168.50.253:52424/freeboxtv/mafreebox.freebox.fr/fbxtv_pub/stream?namespace=1&service=1135&flavour=hd",
+            "position": 104
+        }
+    ]
+}
