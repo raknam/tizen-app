@@ -6,12 +6,14 @@ import {RemoteController,RemoteKeys} from './remotecontroller.js'
 import Channel from './channel.js'
 
 export default class App {
-	loader = new Loader()
-	log = new Log()
+	loader
+	log
 	channels = []
 	serverUrl = ""
 
 	constructor() {
+        this.loader = new Loader()
+        this.log = new Log()
 		this.player = new Player(this)
 		this.overlay = new Overlay(this);
 		this.remoteHandling = new RemoteController(this)

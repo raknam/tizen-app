@@ -1,41 +1,43 @@
 export class RemoteController {
 	api = Chrome_DEBUG ? null : tizen.tvinputdevice
+    app
 
-	constructor() {
+	constructor(app) {
+        this.app = app
 		//console.log(this.api.getSupportedKeys())
-		document.body.addEventListener('keydown', this.onKeyPressed)
+		document.body.addEventListener('keydown', (event) => { this.onKeyPressed(event) })
 		if (Chrome_DEBUG) return
 		tizen.tvinputdevice.registerKeyBatch(['ChannelList'])
 	}
 
 	onKeyPressed(event) {
-		console.log("KeyPressed", event.keyCode)
+		//console.log("KeyPressed", event.keyCode)
 		switch(event.keyCode) {
 			case RemoteKeys.OK: {
-				if (myApp.overlay.hidden()) {
-					myApp.overlay.show()
+				if (this.app.overlay.hidden()) {
+					this.app.overlay.show()
 				} else {
-					myApp.overlay.enter()
+					this.app.overlay.enter()
 				}
                 break
             }
 			case RemoteKeys.Right: {
-				if (myApp.overlay.hidden()) {
-					myApp.overlay.show()
+				if (this.app.overlay.hidden()) {
+					this.app.overlay.show()
 				}
-				myApp.overlay.moveCursorRight()
+				this.app.overlay.moveCursorRight()
 				break;
 			}
 			case RemoteKeys.Left: {
-				if (myApp.overlay.hidden()) {
-					myApp.overlay.show()
+				if (this.app.overlay.hidden()) {
+					this.app.overlay.show()
 				}
-				myApp.overlay.moveCursorLeft()
+				this.app.overlay.moveCursorLeft()
 				break;
 			}
 			case RemoteKeys.Back: {
-				if (myApp.overlay.shown()) {
-					myApp.overlay.hide()
+				if (this.app.overlay.shown()) {
+					this.app.overlay.hide()
 				}
 				break;
 			}
@@ -43,7 +45,7 @@ export class RemoteController {
 				event.stopImmediatePropagation()
 				break;
 			case RemoteKeys.ChannelList:
-				myApp.loadChannels();
+				this.app.loadChannels();
 				break;
 		}
 	}

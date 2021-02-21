@@ -1,4 +1,4 @@
-window.Chrome_DEBUG = true
+window.Chrome_DEBUG = false
 
 import App from './app.js'
 

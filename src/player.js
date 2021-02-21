@@ -43,7 +43,7 @@ export default class Player {
 		webapis.avplay.open(url)
 		
 		webapis.avplay.setDisplayRect(0,0,1920,1080);
-		setTimeout(this.preparePlayer, 2000)
+		setTimeout(() => { this.preparePlayer() }, 2000)
 	}
 
 	preparePlayer() {
@@ -61,12 +61,12 @@ export default class Player {
 			this.app.log.clear();
 			webapis.avplay.play();
 			clearTimeout(this.retryTimeout);
-			this.overlayTimeout = setTimeout(this.app.overlay.hide, 5000);
+			this.overlayTimeout = setTimeout(() => { this.app.overlay.hide() }, 5000);
 		} else {
 			if (this.prepareCount >= 10) {
 				this.run(this.currentUrl)
 			} else {
-				this.retryTimeout = setTimeout(this.preparePlayer, 2000)
+				this.retryTimeout = setTimeout(() => { this.preparePlayer() }, 2000)
 			}
 		}
 	}
