@@ -1,141 +1,86 @@
-var Chrome_DEBUG = false
+var Chrome_DEBUG = true
 
 
 //Loader
-var loader = {
-	div: document.getElementById('page_loader'),
-	show: function() { this.div.style.display = 'block' },
-	hide: function() { this.div.style.display = 'none' },
+const Loader = class {
+	div = document.getElementById('page_loader')
+	show() { this.div.style.display = 'block' }
+	hide() { this.div.style.display = 'none' }
 }
 
+const Overlay = class {
+	div = document.getElementById('overlay')
+	channelNameP = document.getElementById('currentChannel')
+	channelsDiv = document.getElementById('channels')
 
-//LOGS
-var logDiv1 = document.getElementById('log1')
-var logDiv2 = document.getElementById('log2')
-var log = (log) => logDiv2.innerHTML = log
-var sublog = (log) => logDiv1.innerHTML = log
-var clearLogs = () => { logDiv1.innerHTML = ""; logDiv2.innerHTML = "" }
+	app
+	cursor = null
+	active = null
 
+	constructor(app) { this.app = app }
 
-//OVERLAY
-var overlay = {
-	div: document.getElementById('overlay'),
-	channelNameP: document.getElementById('currentChannel'),
-	channelsDiv: document.getElementById('channels'),
-
-	hide: function() { 
-		overlay.div.style.display = 'none'
-	},
-	show: function() {
-		overlay.div.style.display = 'block'
-		overlay.setCursor(overlay.active)
-	},
-	shown: () => overlay.div.style.display == 'block',
-	hidden: () => !overlay.shown(),
-	
-	init: () => {
-		app.channels.forEach((channel) => {
-			overlay.channelsDiv.appendChild(channel.domElement)
+	init() {
+		this.app.channels.forEach((channel) => {
+			this.channelsDiv.appendChild(channel.domElement)
 		})
-		
-		overlay.setActive(app.channels[0])
-		overlay.show()
-	},
+		this.setActive(this.app.channels[0])
+		this.show()
+	}
 
-	cursor: null,
-	active: null,
-	setCursor: (channel) => {
-		app.channels.forEach((c) => c.setCursor(false))
+	hide() { this.div.style.display = 'none' }
+	show() {
+		this.div.style.display = 'block'
+		this.setCursor(this.active)
+	}
+	shown() { return this.div.style.display == 'block' }
+	hidden() { return !this.shown() }
+
+	setCursor(channel) {
+		this.app.channels.forEach((c) => c.setCursor(false))
 		channel.setCursor(true)
-		overlay.cursor = channel
-	},
-	setActive: (channel) => {
-		app.channels.forEach((c) => c.setActive(false))
+		this.cursor = channel
+	}
+	setActive(channel) {
+		this.app.channels.forEach((c) => c.setActive(false))
 		channel.setActive(true)
-		overlay.active = channel
-		overlay.channelNameP.innerHTML = channel.name
-		player.run(channel.url)
-	},
+		this.active = channel
+		this.channelNameP.innerHTML = channel.name
+		this.app.player.run(channel.url)
+	}
 
-	moveCursorRight: () => overlay.moveCursor(1),
-	moveCursorLeft: () => overlay.moveCursor(-1),
-	moveCursor: (move) => {
-		let current = overlay.cursor.position
-		if (current + move < 0 || current + move > app.channels.length - 1) {
+	moveCursorRight() { this.moveCursor(1) }
+	moveCursorLeft() { this.moveCursor(-1) }
+	moveCursor(move) {
+		let current = this.cursor.position
+		if (current + move < 0 || current + move > this.app.channels.length - 1) {
 			console.log("Cannot apply move " + move)
 			return
 		}
-		overlay.cursor.setCursor(false)
-		overlay.cursor = app.channels[current + move]
-		overlay.cursor.setCursor(true)
-	},
+		this.cursor.setCursor(false)
+		this.cursor = this.app.channels[current + move]
+		this.cursor.setCursor(true)
+	}
 
-	enter: () => {
-		overlay.setActive(overlay.cursor)
-	},
-
-	timeout: null,
+	enter() { this.setActive(this.cursor) }
 }
 
+const Player = class {
+	div = document.getElementById('player')
 
-//PLAYER
-var player = {
-	div: document.getElementById('player'),
-	playing: false,
-	prepareCount: 0,
-	currentUrl: "",
-	run: (url) => {
-		log("Starting Player > " + url)
+	app
+	playing = false
+	prepareCount = 0
+	currentUrl = ""
+	overlayTimeout = null
+	retryTimeout = null
+
+	constructor(app) { 
+		this.app = app
 		if (Chrome_DEBUG) return
+		webapis.avplay.setListener(this.listeners);
+	}
 
-		if (player.playing) {
-			clearTimeout(player.overlayTimeout)
-			clearTimeout(player.retryTimeout)
-			webapis.avplay.stop()
-			webapis.avplay.close()
-			loader.show()
-		}
-
-		player.currentUrl = url
-		player.playing = true
-		player.prepareCount = 0
-		
-		webapis.avplay.open(url)
-		
-		webapis.avplay.setDisplayRect(0,0,1920,1080);
-		setTimeout(player.preparePlayer, 2000)
-	},
-	preparePlayer: () => {
-		let prepared = false
-		player.prepareCount++
-		sublog(`Retry ${player.prepareCount}`)
-		
-		try {
-			webapis.avplay.prepare();
-			prepared = true
-		} catch (e) { }
-
-		if (prepared) {
-			loader.hide()
-			clearLogs();
-			webapis.avplay.play();
-			clearTimeout(player.retryTimeout);
-			player.overlayTimeout = setTimeout(overlay.hide, 5000);
-		} else {
-			if (player.prepareCount >= 10) {
-				player.run(player.currentUrl)
-			} else {
-				player.retryTimeout = setTimeout(player.preparePlayer, 2000)
-			}
-		}
-	},
-	overlayTimeout: null,
-	retryTimeout: null,
-	init: () => {
-		if (Chrome_DEBUG) return
-		webapis.avplay.setListener(player.listeners);
-	},
-	listeners: {
+	listeners = {
 		onbufferingstart: () => { },
 		onbufferingprogress: () => { },
 		onbufferingcomplete: () => { },
@@ -144,46 +89,93 @@ var player = {
 		ondrmevent: () => { },	
 		onerror: () => { },
 	}
+
+	run(url) {
+		this.app.log.log("Starting Player > " + url)
+		if (Chrome_DEBUG) return
+
+		if (this.playing) {
+			clearTimeout(this.overlayTimeout)
+			clearTimeout(this.retryTimeout)
+			webapis.avplay.stop()
+			webapis.avplay.close()
+			this.app.loader.show()
+		}
+
+		this.currentUrl = url
+		this.playing = true
+		this.prepareCount = 0
+		
+		webapis.avplay.open(url)
+		
+		webapis.avplay.setDisplayRect(0,0,1920,1080);
+		setTimeout(this.preparePlayer, 2000)
+	}
+
+	preparePlayer() {
+		let prepared = false
+		this.prepareCount++
+		this.app.log.sublog(`Retry ${this.prepareCount}`)
+		
+		try {
+			webapis.avplay.prepare();
+			prepared = true
+		} catch (e) { }
+
+		if (prepared) {
+			this.app.loader.hide()
+			this.app.log.clear();
+			webapis.avplay.play();
+			clearTimeout(this.retryTimeout);
+			this.overlayTimeout = setTimeout(this.app.overlay.hide, 5000);
+		} else {
+			if (this.prepareCount >= 10) {
+				this.run(this.currentUrl)
+			} else {
+				this.retryTimeout = setTimeout(this.preparePlayer, 2000)
+			}
+		}
+	}
 }
 
+const RemoteController = class {
+	api = Chrome_DEBUG ? null : tizen.tvinputdevice
 
-//REMOTE
-var remoteHandling = {
-	api: Chrome_DEBUG ? null : tizen.tvinputdevice,
-	init: function() {
+	constructor() {
 		//console.log(this.api.getSupportedKeys())
 		document.body.addEventListener('keydown', this.onKeyPressed)
 		if (Chrome_DEBUG) return
 		tizen.tvinputdevice.registerKeyBatch(['ChannelList'])
-	},
-	onKeyPressed: function(event) {
+	}
+
+	onKeyPressed(event) {
 		console.log("KeyPressed", event.keyCode)
 		switch(event.keyCode) {
 			case RemoteKeys.OK: {
-				if (overlay.hidden()) {
-					overlay.show()
+				if (myApp.overlay.hidden()) {
+					myApp.overlay.show()
 				} else {
-					overlay.enter()
+					myApp.overlay.enter()
 				}
                 break
             }
 			case RemoteKeys.Right: {
-				if (overlay.hidden()) {
-					overlay.show()
+				if (myApp.overlay.hidden()) {
+					myApp.overlay.show()
 				}
-				overlay.moveCursorRight()
+				myApp.overlay.moveCursorRight()
 				break;
 			}
 			case RemoteKeys.Left: {
-				if (overlay.hidden()) {
-					overlay.show()
+				if (myApp.overlay.hidden()) {
+					myApp.overlay.show()
 				}
-				overlay.moveCursorLeft()
+				myApp.overlay.moveCursorLeft()
 				break;
 			}
 			case RemoteKeys.Back: {
-				if (overlay.shown()) {
-					overlay.hide()
+				if (myApp.overlay.shown()) {
+					myApp.overlay.hide()
 				}
 				break;
 			}
@@ -191,13 +183,13 @@ var remoteHandling = {
 				event.stopImmediatePropagation()
 				break;
 			case RemoteKeys.ChannelList:
-				app.loadChannels();
+				myApp.loadChannels();
 				break;
 		}
-	},
+	}
 }
 
-var RemoteKeys = {
+const RemoteKeys = {
     Left: 37, Up: 38, Right: 39, Down: 40, OK: 13, Back: 10009,
     Key0: 48, Key1: 49, Key2: 50, Key3: 51, Key4: 52, Key5: 53, Key6: 54, Key7: 55, Key8: 56, Key9: 57, 
     VolumeUp: 447, VolumeDown: 448, VolumeMute: 449, 
@@ -209,35 +201,6 @@ var RemoteKeys = {
     Source: 10072, PictureSize: 10140, PreviousChannel: 10190, ChannelList: 10073, EManual: 10146,
     MTS: 10195, Key3D: 10199, Soccer: 10228, Caption: 10221, Teletext: 10200, Extra: 10253, Minus: 189
 }
-
-
-//App
-var app = {
-	init: () => {
-		clearLogs();
-		remoteHandling.init();
-		player.init();
-		app.loadChannels();
-	},
-	loadChannels: () => {
-		app.channels = []
-		overlay.channelsDiv.innerHTML = ""
-		fetch('https://tizen.000.ovh/channels.php').then(res => res.json()).then((out) => {
-			out.channels.forEach(channel => app.addChannel(channel))
-			overlay.init()
-		}).catch(err => {
-			console.error(err)
-			log('loadChannels::error ' + err)
-		});
-	},
-	channels: [],
-	addChannel: (channelJson) => {
-		let channel = new Channel(channelJson)
-		channel.position = app.channels.length
-		app.channels.push(channel)
-	},
-}
-
 
 class Channel {
 	constructor(json) {
@@ -276,12 +239,62 @@ class Channel {
 	}
 }
 
+//App
+const App = class {
+	loader = new Loader()
+	log = new Log()
+	channels = []
+
+	constructor() {
+		this.player = new Player(this)
+		this.overlay = new Overlay(this);
+		this.remoteHandling = new RemoteController(this)
+	}
+
+	init() {
+		this.log.clear();
+		this.loadChannels();
+	}
+	loadChannels() {
+		this.channels = []
+		if (this.overlay !== undefined)
+			this.overlay.channelsDiv.innerHTML = ""
+		
+		fetch('https://tizen.000.ovh/channels.php')
+			.then(res => res.json())
+			.then((out) => {
+				out.channels.forEach(channel => this.addChannel(channel))
+				this.overlay.init()
+			}).catch(err => {
+				console.error(err)
+				this.log.sublog('loadChannels::error ' + err)
+			});
+	}
+	addChannel(channelJson) {
+		let channel = new Channel(channelJson)
+		channel.position = this.channels.length
+		this.channels.push(channel)
+	}
+}
+
+//logs
+const Log = class {
+	logDiv1 = document.getElementById('log1')
+	logDiv2 = document.getElementById('log2')
+	log(log) { this.logDiv2.innerHTML = log }
+	sublog(log) { this.logDiv1.innerHTML = log }
+	clear() { 
+		this.logDiv1.innerHTML = ""
+		this.logDiv2.innerHTML = ""
+	}
+}
 
 //Onload
+const myApp = new App();
 window.onload = () => {
 	if (Chrome_DEBUG) {
 		document.getElementById('player').getElementsByTagName('object')[0].style.display = 'none'
 	}
 
-	app.init();
+	myApp.init();
 };
