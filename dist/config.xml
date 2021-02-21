@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://raknam.fr/MyTV" version="0.0.1" viewmodes="maximized">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://raknam.fr/MyTV" version="1.0.0" viewmodes="maximized">
     <access origin="*" subdomains="true"/>
     <tizen:application id="Raknam0000.MyTVv2" package="Raknam0000" required_version="4.0"/>
     <author href="https://raknam.fr" email="me@raknam.fr">Raknam</author>
