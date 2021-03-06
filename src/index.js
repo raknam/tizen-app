@@ -1,4 +1,8 @@
-window.Chrome_DEBUG = false
+var ua = navigator.userAgent;
+window.Chrome_DEBUG = ua.indexOf('SMART-TV') == -1
+if (window.Chrome_DEBUG) {
+	console.log("Chrome mode enabled")
+}
 
 import App from './app.js'
 
