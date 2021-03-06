@@ -37,6 +37,7 @@ export default class App {
 			}).catch(err => {
 				console.error(err)
 				this.log.sublog('loadChannels::error ' + err)
+				setTimeout(() => this.loadChannels(), 1000)
 			});
 	}
 	addChannel(channelJson) {
