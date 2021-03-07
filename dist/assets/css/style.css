@@ -95,6 +95,12 @@ body {
 	margin-left: 15px;
 }
 
+#epg #clock {
+	float: right;
+    margin-right: 80px;
+    font-size: 100pt;
+}
+
 .channels {
 	padding: 20px;
     padding-top: 0px;

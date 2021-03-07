@@ -5,6 +5,7 @@ export default class Epg {
     channelNameP = document.getElementById('currentProgram')
 	nextProgamP  = document.getElementById('nextProgram')
     thumbnail    = document.getElementById('thumbnail')
+    clockP       = document.getElementById('clock')
     
     constructor(app, overlay) { 
         this.app = app
@@ -15,11 +16,15 @@ export default class Epg {
     init(url) {
         this.url = url
         this.grabEpg()
-        setInterval(() => this.reloadEpg(), 1000)
+        setInterval(() => this.reloadEpg(), 10000)
+        let clock = new Date()
+        this.clockP.innerText = (clock.getHours() < 10 ? "0" : "") + clock.getHours() + ":" + (clock.getMinutes() < 10 ? "0" : "") + clock.getMinutes()
     }
 
     reloadEpg() {
         let now = Date.now()
+        let clock = new Date()
+        this.clockP.innerText = (clock.getHours() < 10 ? "0" : "") + clock.getHours() + ":" + (clock.getMinutes() < 10 ? "0" : "") + clock.getMinutes()
 //        console.log("reloadEpg loop", now, this.data._meta.next_refresh - now)
         if (this.reloadInProgress) return
         if (now < this.data._meta.next_refresh) return
@@ -64,9 +69,9 @@ export default class Epg {
         
         let subtitle = ""
         if (epgProgram.subtitle !== undefined) subtitle = epgProgram.subtitle + " "
+        if (epgProgram.date !== undefined) subtitle += "(" + epgProgram.date + ") "
         if (epgProgram.ep_season !== undefined) subtitle += "S" + (epgProgram.ep_season < 10 ? "0" : "") + epgProgram.ep_season
         if (epgProgram.ep_episode !== undefined) subtitle += "E" + (epgProgram.ep_episode < 10 ? "0" : "") + epgProgram.ep_episode
-        if (epgProgram.date !== undefined) subtitle += " (" + epgProgram.date + ")"
 
         pTag.children[0].innerText = subtitle
         pTag.children[1].innerText = epgProgram.start.substr(8,2) + ":" + epgProgram.start.substr(10,2) + 
