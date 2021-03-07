@@ -61,15 +61,15 @@ body {
     margin-top: 30px;
     margin-left: 40px;
     text-transform: uppercase;
-    height: 240px;
+    height: 250px;
 }
 
 #epg #thumbnail {
-	float: right;
+	float: left;
     margin-right: 40px;
     width: 352px;
     height: 240px;
-	border-radius: 20px;
+	border-radius: 5px;
 }
 
 #epg > p {
@@ -78,8 +78,9 @@ body {
 }
 
 #epg .time {
-	float: right;
+	float: left;
     margin-right: 40px;
+	width: 370px;
 }
 
 #epg #nextProgram {

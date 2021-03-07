@@ -55,12 +55,12 @@ export default class Epg {
 
     setProgram(epgProgram, pTag, isNext) {
         if (!isNext) {
-            this.thumbnail.style.display = epgProgram.icon === undefined ? 'none' : 'block'
+            this.thumbnail.style.visibility = epgProgram.icon === undefined ? 'hidden' : 'visible'
             if (epgProgram.icon !== undefined)
                 this.thumbnail.src = epgProgram.icon
         }
 
-        pTag.firstChild.nodeValue = (isNext ? "> " : "") + epgProgram.title
+        pTag.firstChild.nodeValue = epgProgram.title
         
         let subtitle = ""
         if (epgProgram.subtitle !== undefined) subtitle = epgProgram.subtitle + " "
