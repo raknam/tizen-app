@@ -33,7 +33,7 @@ export default class Overlay {
 		this.app.channels.forEach((c) => c.setActive(false))
 		channel.setActive(true)
 		this.active = channel
-		this.epg.setEpg(channel.id)
+		this.epg.setEpgChannel(channel.id)
 		this.app.player.run(channel.url)
 	}
 	hasActive() {
@@ -53,6 +53,7 @@ export default class Overlay {
 		this.cursor.setCursor(false)
 		this.cursor = this.app.channels[current + move]
 		this.cursor.setCursor(true)
+		this.epg.setEpgChannel(this.cursor.id)
 	}
 
 	enter() { this.setActive(this.cursor) }

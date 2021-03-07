@@ -15,31 +15,37 @@ export default class Epg {
     init(url) {
         this.url = url
         this.grabEpg()
+        setInterval(() => this.reloadEpg(), 1000)
     }
 
     reloadEpg() {
+        let now = Date.now()
+//        console.log("reloadEpg loop", now, this.data._meta.next_refresh - now)
         if (this.reloadInProgress) return
+        if (now < this.data._meta.next_refresh) return
+//        console.log("Reloading EPG", now - this.data._meta.next_refresh)
+        this.grabEpg()
     }
 
     grabEpg() {
         this.reloadInProgress = true
-        fetch(this.url)
+        fetch(this.url + "&cb=" + Date.now())
 			.then(res => res.json())
 			.then(out => {
                 this.data = out
+                this.reloadInProgress = false
                 if (this.overlay.hasActive()) {
-                    this.setEpg(this.overlay.active.id)
+                    setTimeout(() => { this.setEpgChannel(this.overlay.cursor.id) }, 100)
                 }
 			}).catch(err => {
 				console.error(err)
-			}).finally(() => {
                 this.reloadInProgress = false
-            })
+			})
     }
 
-    setEpg(channelId) {
+    setEpgChannel(channelId) {
         if (this.data == null) return;
-        console.log("setEPG", this.data[channelId].now, this.data[channelId].next)
+//        console.log("setEPG", this.data._meta.next_refresh, this.data[channelId].now, this.data[channelId].next)
         this.setCurrentProgram(this.data[channelId].now)
         this.setNextProgram(this.data[channelId].next)
     }
