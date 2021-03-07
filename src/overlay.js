@@ -1,9 +1,8 @@
 export default class Overlay {
 	div = document.getElementById('overlay')
-	channelNameP = document.getElementById('currentChannel')
-	channelsDiv = document.getElementById('channels')
+	channelsDiv  = document.getElementById('channels')
 
-	app
+	app; epg
 	cursor = null
 	active = null
 
@@ -34,9 +33,14 @@ export default class Overlay {
 		this.app.channels.forEach((c) => c.setActive(false))
 		channel.setActive(true)
 		this.active = channel
-		this.channelNameP.innerHTML = channel.name
+		this.epg.setEpg(channel.id)
 		this.app.player.run(channel.url)
 	}
+	hasActive() {
+		return this.active != null
+	}
+
+	setEpg(epg) { this.epg = epg }
 
 	moveCursorRight() { this.moveCursor(1) }
 	moveCursorLeft() { this.moveCursor(-1) }

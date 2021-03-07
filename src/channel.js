@@ -4,6 +4,7 @@ export default class Channel {
 		this.name = json.name
 		this.image_url = json.image_url
 		this.image_url_over = json.image_url_over
+		this.id = json.id
 		this.generateDomElement()
 	}
 
