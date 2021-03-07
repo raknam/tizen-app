@@ -68,8 +68,11 @@ export default class Epg {
         if (epgProgram.ep_episode !== undefined) subtitle += "E" + (epgProgram.ep_episode < 10 ? "0" : "") + epgProgram.ep_episode
         if (epgProgram.date !== undefined) subtitle += " (" + epgProgram.date + ")"
 
+        let startHour = (parseInt(epgProgram.start.substr(8,2)) + 1) % 24
+        let stopHour = (parseInt(epgProgram.stop.substr(8,2)) + 1) % 24
+
         pTag.children[0].innerText = subtitle
-        pTag.children[1].innerText = epgProgram.start.substr(8,2) + ":" + epgProgram.start.substr(10,2) + 
-            " > " + epgProgram.stop.substr(8,2) + ":" + epgProgram.stop.substr(10,2)
+        pTag.children[1].innerText = (startHour < 10 ? "0" : "") + startHour + ":" + epgProgram.start.substr(10,2) + 
+            " > " + (stopHour < 10 ? "0" : "") + stopHour + ":" + epgProgram.stop.substr(10,2)
     }
 }

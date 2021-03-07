@@ -79,8 +79,8 @@ body {
 
 #epg .time {
 	float: left;
-    margin-right: 40px;
-	width: 370px;
+    margin-right: 20px;
+	width: 400px;
 }
 
 #epg #nextProgram {
