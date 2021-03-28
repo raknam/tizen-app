@@ -46,4 +46,7 @@ export default class App {
 		channel.position = this.channels.length
 		this.channels.push(channel)
 	}
+	reloadEpg() {
+		this.epg.reloadEpg()
+	}
 }

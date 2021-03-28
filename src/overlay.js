@@ -12,22 +12,28 @@ export default class Overlay {
 		this.app.channels.forEach((channel) => {
 			this.channelsDiv.appendChild(channel.domElement)
 		})
-		this.setActive(this.app.channels[0])
+		//this.setActive(this.app.channels[0])
+		this.setCursor(this.app.channels[0])
 		this.show()
 	}
 
 	hide() { this.div.style.display = 'none' }
 	show() {
 		this.div.style.display = 'block'
-		this.setCursor(this.active)
+		this.setCursor(this.active == null ? this.app.channels[0] : this.active)
 	}
 	shown() { return this.div.style.display == 'block' }
 	hidden() { return !this.shown() }
 
 	setCursor(channel) {
 		this.app.channels.forEach((c) => c.setCursor(false))
-		channel.setCursor(true)
 		this.cursor = channel
+		if (channel == null) return
+		channel.setCursor(true)
+		this.epg.setEpgChannel(this.cursor.id)
+	}
+	hasCursor() {
+		return this.cursor != null
 	}
 	setActive(channel) {
 		this.app.channels.forEach((c) => c.setActive(false))

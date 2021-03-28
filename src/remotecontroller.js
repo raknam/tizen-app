@@ -7,7 +7,7 @@ export class RemoteController {
 		//console.log(this.api.getSupportedKeys())
 		document.body.addEventListener('keydown', (event) => { this.onKeyPressed(event) })
 		if (Chrome_DEBUG) return
-		tizen.tvinputdevice.registerKeyBatch(['ChannelList'])
+		tizen.tvinputdevice.registerKeyBatch(['ChannelList','ColorF3Blue'])
 	}
 
 	onKeyPressed(event) {
@@ -46,6 +46,9 @@ export class RemoteController {
 				break;
 			case RemoteKeys.ChannelList:
 				this.app.loadChannels();
+				break;
+			case RemoteKeys.ColorF3Blue:
+				this.app.reloadEpg();
 				break;
 		}
 	}

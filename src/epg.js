@@ -39,7 +39,7 @@ export default class Epg {
 			.then(out => {
                 this.data = out
                 this.reloadInProgress = false
-                if (this.overlay.hasActive()) {
+                if (this.overlay.hasCursor()) {
                     setTimeout(() => { this.setEpgChannel(this.overlay.cursor.id) }, 100)
                 }
 			}).catch(err => {
@@ -68,7 +68,7 @@ export default class Epg {
         pTag.firstChild.nodeValue = epgProgram.title
         
         let subtitle = ""
-        if (epgProgram.subtitle !== undefined) subtitle = epgProgram.subtitle + " "
+        if (epgProgram.subtitle !== undefined) subtitle = epgProgram.subtitle.substr(0,50) + (epgProgram.subtitle.length > 50 ? "..." : "") + " "
         if (epgProgram.date !== undefined) subtitle += "(" + epgProgram.date + ") "
         if (epgProgram.ep_season !== undefined) subtitle += "S" + (epgProgram.ep_season < 10 ? "0" : "") + epgProgram.ep_season
         if (epgProgram.ep_episode !== undefined) subtitle += "E" + (epgProgram.ep_episode < 10 ? "0" : "") + epgProgram.ep_episode
